@@ -1,23 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
   <head>
     <meta charset="UTF-8" />
-    <title>Solana Airdrop Wallet</title>
-  </head>
-  <body style="font-family: sans-serif; text-align: center; padding-top: 100px;">
-    <h1>🔹 Solana Airdrop Wallet Balance 🔹</h1>
-    <div id="balance">Loading...</div>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Solana Airdrop Wallet Balance</title>
 
-    <script>
-      fetch("/api/solbalance")
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("balance").innerText =
-            "Balance: " + data.balance + " SOL";
-        })
-        .catch(() => {
-          document.getElementById("balance").innerText = "Error loading balance";
-        });
-    </script>
-  </body>
-</html>
+    <!-- Google Font: Syne -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+      :root{
+        --bg:#0b0f1f;
+        --text:#e8eefc;
+        --muted:#a7b1d6;
+        --card:rgba(14,18,36,0.55);
+        --stroke:rgba(255,255,255,0.08);
+        --shadow: 0 10px 40px rgba(0,0,0,0.45);
+        --sol-purple:#9945FF;
+        --sol-mint:#00FFA3;
+        --sol-green:#14F195;
+        --radius:18px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,body {
+        height: 100%;
+      }
+
+      body{
+        margin:0;
+        font-family: "Syne", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background:
+          radial-gradient(900px 900px at 10% 15%, rgba(153,69,255,0.25), transparent 60%),
+          radial-gradient(900px 900px at 85% 25%, rgba(0,255,163,0.22), transparent 60%),
+          radial-gradient(800px 800px at 20% 90%, rgba(20,241,149,0.18), transparent 60%),
+          linear-gradient(180deg, #0b0f1f 0%, #0a0d1a 60%, #090c16 100%);
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: clamp(16px, 4vw, 32px);
+        overflow-x: hidden;
+      }
+
+      /* Subtle animated glow orbs */
+      .orb {
+        position: fixed;
+        inset: auto;
+        pointer-events: none;
+        filter: blur(50px);
+        opacity: .55;
+        z-index: 0;
+      }
+      .orb.o1{ width: 420px; height: 420px; left: -120px; top: -120px; background: radial-gradient(circle, var(--sol-purple), transparent 60%); animation: float 12s ease-in-out infinite; }
+      .orb.o2{ width: 460px; height: 460px; right: -140px; top: 10vh; background: radial-gradient(circle, var(--sol-mint), transparent 60%); animation: float 14s ease-in-out -2s infinite; }
+      .orb.o3{ width: 520px; height: 520px; left: 10vw; bottom: -160px; background: radial-gradient(circle, var(--sol-green), transparent 60%); animation: float 16s ease-in-out -4s infinite; }
+
+      @keyframes float{
+        0%,100% { transform: translateY(0) translateX(0) scale(1); }
+        50% { transform: translateY(-12px) translateX(6px) scale(1.02); }
+      }
+
+      .wrap{
+        position: relative;
+        z-index: 1;
+        width: min(640px, 96vw);
+      }
+
+      .card{
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px) saturate(120%);
+        -webkit-backdrop-filter: blur(14px) saturate(120%);
+        padding: clamp(18px, 4vw, 28px);
+      }
+
+      .title{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 0 0 12px;
+        font-weight: 800;
+        letter-spacing: .2px;
+        font-size: clamp(24px, 4.8vw, 36px);
+        line-height: 1.1;
+        text-align: center;
+        background: linear-gradient(90deg, var(--sol-purple), var(--sol-mint), var(--sol-green));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .subtitle{
+        text-align: center;
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: clamp(13px, 2.8vw, 15px);
+      }
+
+      .balanceBox{
+        display: grid;
+        place-items: center;
+        gap: 10px;
+        padding: clamp(16px, 3.4vw, 22px);
+        border-radius: calc(var(--radius) - 6px);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .label{
+        color: #b9c4ee;
+        font-size: clamp(12px, 2.6vw, 14px);
+        letter-spacing: .4px;
+      }
+
+      .value{
+        font-weight: 800;
+        font-size: clamp(26px, 7vw, 40px);
+        letter-spacing: .3px;
+      }
+
+      .value .unit{
+        color: #a7ffd8;
+        font-weight: 700;
+        font-size: .7em;
+        margin-left: .3em;
+      }
+
+      .status{
+        margin-top: 12px;
+        text-align: center;
+        color: var(--muted);
+        font-size: clamp(12px, 2.6vw, 14px);
+        min-height: 20px;
+      }
+
+      .actions{
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
