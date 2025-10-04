@@ -1,51 +1,31 @@
+// pages/api/sombrero.js
+
 export default async function handler(req, res) {
   const wallet = "HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E";
-  const mint = "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk";
+  const sombreroMint = "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk";
 
-  // ১. টোকেন ব্যালেন্স বের করা
-  const tokenAccountsRes = await fetch("https://api.mainnet-beta.solana.com", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "getTokenAccountsByOwner",
-      params: [
-        wallet,
-        { mint },
-        { encoding: "jsonParsed" }
-      ]
-    })
-  });
-  const tokenAccounts = await tokenAccountsRes.json();
+  // ১. wallet balance (Solscan public API)
+  const tokenRes = await fetch(`https://public-api.solscan.io/account/tokens?account=${wallet}`);
+  const tokens = await tokenRes.json();
 
-  let amount = 0;
-  let decimals = 0;
-  if (tokenAccounts.result.value.length > 0) {
-    const info = tokenAccounts.result.value[0].account.data.parsed.info.tokenAmount;
-    amount = Number(info.amount);
-    decimals = info.decimals;
-  }
+  // ২. SOMBRERO টোকেন খুঁজে বের করা
+  const sombrero = tokens.find(
+    (t) => t.tokenAddress === sombreroMint
+  );
 
-  const balance = amount / Math.pow(10, decimals);
+  // ৩. SOMBRERO টোকেনের মার্কেট প্রাইস (Birdeye API)
+  // (Birdeye public API, rate limit কম, চাইলে Coingecko বা অন্যটা ব্যবহার করতে পারেন)
+  const priceRes = await fetch(`https://public-api.birdeye.so/public/price?address=${sombreroMint}`);
+  const priceData = await priceRes.json();
+  const price = priceData.data?.value || 0;
 
-  // ২. Value (Jupiter API)
-  let price = null;
-  try {
-    const priceRes = await fetch(`https://price.jup.ag/v6/price?ids=${mint}`);
-    const priceJson = await priceRes.json();
-    price = priceJson.data[mint]?.price || null;
-  } catch (e) {
-    price = null;
-  }
-
-  // ৩. USD ভ্যালু
-  const usdValue = price ? balance * price : null;
+  // ৪. Balance and Value
+  const amount = sombrero ? Number(sombrero.tokenAmount.uiAmountString) : 0;
+  const usdValue = amount * price;
 
   res.status(200).json({
-    balance,
-    price,
+    amount,
     usdValue,
-    decimals
+    price,
   });
 }
