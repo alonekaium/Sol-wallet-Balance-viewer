@@ -1,207 +1,112 @@
 <!DOCTYPE html>
-<html lang="bn">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Sombrero Memes Balance</title>
-
-    <!-- Syne font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-
-    <style>
-      :root{
-        --bg:#0b0f1f;
-        --text:#e8eefc;
-        --muted:#a7b1d6;
-        --card:rgba(16,22,40,.78);
-        --stroke:rgba(255,255,255,.12);
-        --shadow:0 12px 40px rgba(0,0,0,.55);
-        --purple:#9945FF;
-        --mint:#00FFA3;
-        --green:#14F195;
-        --radius:18px;
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sombrero Memes Balance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Syne', sans-serif;
+      background: linear-gradient(135deg, #9945FF 0%, #00FFA3 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: rgba(16,22,40,0.85);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      padding: 32px 24px;
+      max-width: 350px;
+      width: 100%;
+      color: #e8eefc;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 18px 0;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .balance {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin: 12px 0 6px 0;
+      color: #00FFA3;
+    }
+    .usd {
+      font-size: 1.3rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-size: 1rem;
+      color: #a7b1d6;
+      margin-bottom: 18px;
+    }
+    .wallet {
+      font-size: 0.85rem;
+      color: #b9c4ee;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+    .refresh-btn {
+      margin-top: 10px;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #9945FF, #00FFA3);
+      color: #0b0f1f;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    .refresh-btn:hover { filter: brightness(1.1);}
+    @media (max-width: 500px) {
+      .card { padding: 18px 6px; }
+      h1 { font-size: 1.1rem; }
+      .balance { font-size: 1.3rem; }
+      .usd { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sombrero Memes Balance</h1>
+    <div class="balance" id="balance">—</div>
+    <div class="usd" id="usd">—</div>
+    <div class="price" id="price">—</div>
+    <div class="wallet" id="wallet">—</div>
+    <button class="refresh-btn" onclick="loadSombrero()">Refresh</button>
+  </div>
+  <script>
+    async function loadSombrero() {
+      document.getElementById('balance').textContent = 'Loading...';
+      document.getElementById('usd').textContent = '';
+      document.getElementById('price').textContent = '';
+      document.getElementById('wallet').textContent = '';
+      try {
+        const res = await fetch('/api/sombrero');
+        const data = await res.json();
+        document.getElementById('balance').textContent = 
+          data.balance ? data.balance.toLocaleString(undefined, {maximumFractionDigits: 6}) + " SOMBRERO" : "—";
+        document.getElementById('usd').textContent = 
+          (data.usdValue !== null) ? "$" + data.usdValue.toLocaleString(undefined, {maximumFractionDigits: 2}) : "—";
+        document.getElementById('price').textContent = 
+          (data.price !== null) ? "Price: $" + data.price.toLocaleString(undefined, {maximumFractionDigits: 6}) : "—";
+        document.getElementById('wallet').textContent = "Wallet: HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E";
+      } catch (e) {
+        document.getElementById('balance').textContent = "Error";
+        document.getElementById('usd').textContent = "";
+        document.getElementById('price').textContent = "";
+        document.getElementById('wallet').textContent = "";
       }
-      *{box-sizing:border-box}
-      html,body{height:100%}
-      body{
-        margin:0;
-        font-family:"Syne",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-        color:var(--text);
-        background:
-          radial-gradient(900px 900px at 10% 15%, rgba(153,69,255,.28), transparent 60%),
-          radial-gradient(900px 900px at 85% 25%, rgba(0,255,163,.22), transparent 60%),
-          radial-gradient(800px 800px at 20% 90%, rgba(20,241,149,.20), transparent 60%),
-          linear-gradient(180deg,#0b0f1f 0%,#0a0d1a 60%,#090c16 100%);
-        min-height:100svh;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:clamp(16px,4vw,32px);
-      }
-      .wrap{width:min(720px,96vw)}
-      .card{
-        background:var(--card);
-        border:1px solid var(--stroke);
-        border-radius:var(--radius);
-        box-shadow:var(--shadow);
-        backdrop-filter:blur(14px) saturate(120%);
-        -webkit-backdrop-filter:blur(14px) saturate(120%);
-        padding:clamp(18px,4vw,28px);
-      }
-      h1{
-        margin:0 0 10px;
-        text-align:center;
-        font-weight:800;
-        font-size:clamp(24px,4.8vw,36px);
-      }
-      .subtitle{
-        margin:0 0 18px;
-        text-align:center;
-        color:var(--muted);
-        font-size:clamp(13px,2.8vw,15px);
-      }
-      .grid{
-        display:grid; gap:12px;
-        grid-template-columns: 1fr;
-      }
-      @media (min-width: 560px){ .grid{ grid-template-columns:1fr 1fr; } }
-
-      .box{
-        border-radius:14px;
-        padding:16px;
-        background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-        border:1px solid rgba(255,255,255,.14);
-      }
-      .label{ color:#b9c4ee; font-size:13px; letter-spacing:.3px; margin-bottom:6px; }
-      .value{ font-weight:800; font-size:clamp(22px, 5.6vw, 30px); }
-      .unit{ color:#a7ffd8; font-weight:700; font-size:.75em; margin-left:.25em; }
-      .usd{ color:#cfe9ff; font-size:clamp(18px, 4.8vw, 24px); font-weight:800; }
-      .status{ margin-top:12px; text-align:center; color:var(--muted); font-size:13px; min-height:20px; }
-
-      .actions{ margin-top:16px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap }
-      button{
-        all:unset; cursor:pointer; padding:10px 16px; border-radius:12px;
-        background:linear-gradient(90deg,var(--purple),var(--mint));
-        color:#0a0f1a; font-weight:800;
-        box-shadow:0 6px 20px rgba(0,255,163,.25);
-        transition:transform .15s ease,filter .2s ease,opacity .2s ease,box-shadow .2s ease;
-      }
-      button:hover{ filter:brightness(1.05); box-shadow:0 8px 26px rgba(0,255,163,.32) }
-      button:active{ transform:translateY(1px) scale(.99) }
-      .ghost{ background:transparent; color:var(--text); border:1px solid var(--stroke); box-shadow:none }
-      .ghost:hover{ background:rgba(255,255,255,.06) }
-
-      .shimmer{
-        background:linear-gradient(110deg, rgba(255,255,255,.07) 8%, rgba(255,255,255,.18) 18%, rgba(255,255,255,.07) 33%);
-        background-size:200% 100%;
-        animation:shine 1.1s linear infinite;
-        border-radius:10px;
-        width:70%; height:22px;
-      }
-      @keyframes shine{ to{ background-position-x:-200%; } }
-      @media (prefers-reduced-motion: reduce){ .shimmer{ animation:none } }
-
-      .note{ margin-top:14px; text-align:center; color:#90a0cf; font-size:12px }
-      .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; color:#c8d3ff; word-break: break-all; }
-    </style>
-  </head>
-  <body>
-    <main class="wrap">
-      <section class="card">
-        <h1>Sombrero Memes Balance</h1>
-        <p class="subtitle">Sombrero Balance</p>
-
-        <div class="grid">
-          <div class="box">
-            <div class="label">Token Balance (SOMBRERO)</div>
-            <div id="tokVal" class="value"><span class="shimmer" style="display:inline-block"></span></div>
-          </div>
-
-          <div class="box">
-            <div class="label">Total Value (USD)</div>
-            <div id="usdVal" class="usd"><span class="shimmer" style="display:inline-block"></span></div>
-          </div>
-
-          <div class="box">
-            <div class="label">Price per token</div>
-            <div id="price" class="value">$ —</div>
-          </div>
-
-          <div class="box">
-            <div class="label">Wallet</div>
-            <div id="wallet" class="mono">—</div>
-          </div>
-        </div>
-
-        <div id="status" class="status">Loading...</div>
-
-        <div class="actions">
-          <button id="refreshBtn">Refresh</button>
-          <button id="copyBtn" class="ghost">Copy value</button>
-        </div>
-
-        <p class="note">Price source: Jupiter (fallback DexScreener)</p>
-      </section>
-    </main>
-
-    <script>
-      const tokEl = document.getElementById("tokVal");
-      const usdEl = document.getElementById("usdVal");
-      const priceEl = document.getElementById("price");
-      const walletEl = document.getElementById("wallet");
-      const statusEl = document.getElementById("status");
-      const refreshBtn = document.getElementById("refreshBtn");
-      const copyBtn = document.getElementById("copyBtn");
-
-      async function loadData(){
-        setLoading(true);
-        try{
-          const res = await fetch("/api/sombrero", { cache: "no-store" });
-          const data = await res.json();
-          if(!data.ok) throw new Error(data.error || "Failed");
-
-          const bal = Number(data.balance || 0);
-          const price = data.priceUSD ? Number(data.priceUSD) : null;
-          const usd = (price ? bal * price : 0);
-
-          tokEl.innerHTML = `${bal.toLocaleString(undefined,{ maximumFractionDigits: 6 })} <span class="unit">SOMBRERO</span>`;
-          usdEl.textContent = price ? `$ ${usd.toLocaleString(undefined,{ maximumFractionDigits: 2 })}` : "—";
-          priceEl.textContent = price ? `$ ${price.toLocaleString(undefined,{ maximumFractionDigits: 6 })}` : "$ —";
-          walletEl.textContent = data.wallet || "—";
-          statusEl.textContent = "Updated • " + new Date().toLocaleTimeString();
-        }catch(err){
-          console.error(err);
-          tokEl.textContent = "—";
-          usdEl.textContent = "—";
-          priceEl.textContent = "$ —";
-          statusEl.textContent = "Error loading data";
-        }finally{
-          setLoading(false);
-        }
-      }
-
-      function setLoading(v){
-        if(v){
-          tokEl.innerHTML = '<span class="shimmer" style="display:inline-block"></span>';
-          usdEl.innerHTML = '<span class="shimmer" style="display:inline-block"></span>';
-          priceEl.textContent = "$ —";
-          statusEl.textContent = "Loading...";
-          refreshBtn.disabled = true; refreshBtn.style.opacity = .6; refreshBtn.style.cursor = "not-allowed";
-        }else{
-          refreshBtn.disabled = false; refreshBtn.style.opacity = 1; refreshBtn.style.cursor = "pointer";
-        }
-      }
-
-      refreshBtn.addEventListener("click", loadData);
-      copyBtn.addEventListener("click", async () => {
-        const txt = `SOMBRERO: ${tokEl.textContent?.trim()} | USD: ${usdEl.textContent?.trim()}`;
-        try{ await navigator.clipboard.writeText(txt); statusEl.textContent = "Copied!"; }
-        catch{ statusEl.textContent = "Copy failed"; }
-      });
-
-      loadData();
-    </script>
-  </body>
+    }
+    loadSombrero();
+  </script>
+</body>
 </html>
