@@ -1,31 +1,29 @@
-// pages/api/sombrero.js
-
-export default async function handler(req, res) {
-  const wallet = "HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E";
-  const sombreroMint = "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk";
-
-  // ১. wallet balance (Solscan public API)
-  const tokenRes = await fetch(`https://public-api.solscan.io/account/tokens?account=${wallet}`);
-  const tokens = await tokenRes.json();
-
-  // ২. SOMBRERO টোকেন খুঁজে বের করা
-  const sombrero = tokens.find(
-    (t) => t.tokenAddress === sombreroMint
-  );
-
-  // ৩. SOMBRERO টোকেনের মার্কেট প্রাইস (Birdeye API)
-  // (Birdeye public API, rate limit কম, চাইলে Coingecko বা অন্যটা ব্যবহার করতে পারেন)
-  const priceRes = await fetch(`https://public-api.birdeye.so/public/price?address=${sombreroMint}`);
-  const priceData = await priceRes.json();
-  const price = priceData.data?.value || 0;
-
-  // ৪. Balance and Value
-  const amount = sombrero ? Number(sombrero.tokenAmount.uiAmountString) : 0;
-  const usdValue = amount * price;
-
-  res.status(200).json({
-    amount,
-    usdValue,
-    price,
-  });
-}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sombrero Memes Balance Viewer</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    .card { display: inline-block; padding: 30px; border: 1px solid #ddd; border-radius: 10px; }
+    .big { font-size: 2em; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Sombrero Memes Balance</h2>
+    <div id="amount" class="big">Loading...</div>
+    <div id="usd" class="big"></div>
+    <div id="price"></div>
+  </div>
+  <script>
+    async function loadSombrero() {
+      const res = await fetch('/api/sombrero');
+      const data = await res.json();
+      document.getElementById('amount').innerText = `Balance: ${data.amount.toLocaleString()} SOMBRERO`;
+      document.getElementById('usd').innerText = `≈ $${data.usdValue.toLocaleString(undefined, {maximumFractionDigits:2})} USD`;
+      document.getElementById('price').innerText = `Current Price: $${data.price} per SOMBRERO`;
+    }
+    loadSombrero();
+  </script>
+</body>
+</html>
