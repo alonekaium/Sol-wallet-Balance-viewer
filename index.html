@@ -1,112 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sombrero Memes Balance</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      min-height: 100vh;
-      margin: 0;
-      font-family: 'Syne', sans-serif;
-      background: linear-gradient(135deg, #9945FF 0%, #00FFA3 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .card {
-      background: rgba(16,22,40,0.85);
-      border-radius: 18px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-      padding: 32px 24px;
-      max-width: 350px;
-      width: 100%;
-      color: #e8eefc;
-      text-align: center;
-    }
-    h1 {
-      margin: 0 0 18px 0;
-      font-size: 1.7rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .balance {
-      font-size: 2.1rem;
-      font-weight: 700;
-      margin: 12px 0 6px 0;
-      color: #00FFA3;
-    }
-    .usd {
-      font-size: 1.3rem;
-      color: #fff;
-      margin-bottom: 10px;
-    }
-    .price {
-      font-size: 1rem;
-      color: #a7b1d6;
-      margin-bottom: 18px;
-    }
-    .wallet {
-      font-size: 0.85rem;
-      color: #b9c4ee;
-      word-break: break-all;
-      margin-bottom: 10px;
-    }
-    .refresh-btn {
-      margin-top: 10px;
-      padding: 10px 22px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #9945FF, #00FFA3);
-      color: #0b0f1f;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: filter 0.2s;
-    }
-    .refresh-btn:hover { filter: brightness(1.1);}
-    @media (max-width: 500px) {
-      .card { padding: 18px 6px; }
-      h1 { font-size: 1.1rem; }
-      .balance { font-size: 1.3rem; }
-      .usd { font-size: 1rem; }
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Sombrero Memes Balance</h1>
-    <div class="balance" id="balance">—</div>
-    <div class="usd" id="usd">—</div>
-    <div class="price" id="price">—</div>
-    <div class="wallet" id="wallet">—</div>
-    <button class="refresh-btn" onclick="loadSombrero()">Refresh</button>
-  </div>
-  <script>
-    async function loadSombrero() {
-      document.getElementById('balance').textContent = 'Loading...';
-      document.getElementById('usd').textContent = '';
-      document.getElementById('price').textContent = '';
-      document.getElementById('wallet').textContent = '';
-      try {
-        const res = await fetch('/api/sombrero');
-        const data = await res.json();
-        document.getElementById('balance').textContent = 
-          data.balance ? data.balance.toLocaleString(undefined, {maximumFractionDigits: 6}) + " SOMBRERO" : "—";
-        document.getElementById('usd').textContent = 
-          (data.usdValue !== null) ? "$" + data.usdValue.toLocaleString(undefined, {maximumFractionDigits: 2}) : "—";
-        document.getElementById('price').textContent = 
-          (data.price !== null) ? "Price: $" + data.price.toLocaleString(undefined, {maximumFractionDigits: 6}) : "—";
-        document.getElementById('wallet').textContent = "Wallet: HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E";
-      } catch (e) {
-        document.getElementById('balance').textContent = "Error";
-        document.getElementById('usd').textContent = "";
-        document.getElementById('price').textContent = "";
-        document.getElementById('wallet').textContent = "";
-      }
-    }
-    loadSombrero();
-  </script>
-</body>
-</html>
+export default async function handler(req, res) {
+  const wallet = "HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E";
+  const mint = "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk";
+
+  // ১. টোকেন ব্যালেন্স বের করা
+  const tokenAccountsRes = await fetch("https://api.mainnet-beta.solana.com", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getTokenAccountsByOwner",
+      params: [
+        wallet,
+        { mint },
+        { encoding: "jsonParsed" }
+      ]
+    })
+  });
+  const tokenAccounts = await tokenAccountsRes.json();
+
+  let amount = 0;
+  let decimals = 0;
+  if (tokenAccounts.result.value.length > 0) {
+    const info = tokenAccounts.result.value[0].account.data.parsed.info.tokenAmount;
+    amount = Number(info.amount);
+    decimals = info.decimals;
+  }
+
+  const balance = amount / Math.pow(10, decimals);
+
+  // ২. Value (Jupiter API)
+  let price = null;
+  try {
+    const priceRes = await fetch(`https://price.jup.ag/v6/price?ids=${mint}`);
+    const priceJson = await priceRes.json();
+    price = priceJson.data[mint]?.price || null;
+  } catch (e) {
+    price = null;
+  }
+
+  // ৩. USD ভ্যালু
+  const usdValue = price ? balance * price : null;
+
+  res.status(200).json({
+    balance,
+    price,
+    usdValue,
+    decimals
+  });
+}
