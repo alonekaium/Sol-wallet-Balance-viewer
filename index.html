@@ -1,164 +1,23 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Solana Airdrop Wallet Balance</title>
-
-    <!-- Syne font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-
-    <style>
-      :root{
-        --bg:#0b0f1f;
-        --text:#e8eefc;
-        --muted:#a7b1d6;
-        --card:rgba(16, 22, 40, 0.78);
-        --stroke:rgba(255,255,255,0.12);
-        --shadow: 0 12px 40px rgba(0,0,0,0.55);
-        --sol-purple:#9945FF;
-        --sol-mint:#00FFA3;
-        --sol-green:#14F195;
-        --radius:18px;
-      }
-      *{ box-sizing:border-box; }
-      html, body { height:100%; }
-      body{
-        margin:0;
-        font-family:"Syne", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        color:var(--text);
-        background:
-          radial-gradient(900px 900px at 10% 15%, rgba(153,69,255,0.28), transparent 60%),
-          radial-gradient(900px 900px at 85% 25%, rgba(0,255,163,0.22), transparent 60%),
-          radial-gradient(800px 800px at 20% 90%, rgba(20,241,149,0.20), transparent 60%),
-          linear-gradient(180deg, #0b0f1f 0%, #0a0d1a 60%, #090c16 100%);
-        min-height:100svh;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:clamp(16px,4vw,32px);
-        overflow-x:hidden;
-      }
-
-      .wrap{ width:min(680px, 96vw); position:relative; z-index:2; }
-      .card{
-        background:var(--card);
-        border:1px solid var(--stroke);
-        border-radius:var(--radius);
-        box-shadow:var(--shadow);
-        backdrop-filter: blur(14px) saturate(120%);
-        -webkit-backdrop-filter: blur(14px) saturate(120%);
-        padding:clamp(18px, 4vw, 28px);
-      }
-
-      /* Title: fallback color first */
-      .title{
-        margin:0 0 12px;
-        text-align:center;
-        font-weight:800;
-        letter-spacing:.2px;
-        font-size:clamp(24px, 4.8vw, 36px);
-        line-height:1.1;
-        color:var(--text); /* fallback so text never disappears */
-      }
-      @supports (-webkit-background-clip: text) or (background-clip: text){
-        .title{
-          background: linear-gradient(90deg, var(--sol-purple), var(--sol-mint), var(--sol-green));
-          -webkit-background-clip:text;
-          background-clip:text;
-          color:transparent;
-        }
-      }
-
-      .subtitle{
-        text-align:center;
-        margin:0 0 18px;
-        color:var(--muted);
-        font-size:clamp(13px, 2.8vw, 15px);
-      }
-
-      .box{
-        display:grid;
-        place-items:center;
-        gap:10px;
-        padding:clamp(16px, 3.4vw, 22px);
-        border-radius:calc(var(--radius) - 6px);
-        background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-        border:1px solid rgba(255,255,255,0.14);
-      }
-      .label{
-        color:#b9c4ee;
-        font-size:clamp(12px, 2.6vw, 14px);
-        letter-spacing:.4px;
-      }
-      .value{
-        font-weight:800;
-        font-size:clamp(26px, 7vw, 40px);
-        letter-spacing:.3px;
-      }
-      .value .unit{
-        color:#a7ffd8;
-        font-weight:700;
-        font-size:.7em;
-        margin-left:.3em;
-      }
-
-      .status{
-        margin-top:12px;
-        text-align:center;
-        color:var(--muted);
-        font-size:clamp(12px, 2.6vw, 14px);
-        min-height:20px;
-      }
-
-      .actions{
-        margin-top:16px;
-        display:flex;
-        justify-content:center;
-        gap:10px;
-        flex-wrap:wrap;
-      }
-      button{
-        all:unset;
-        cursor:pointer;
-        padding:10px 16px;
-        border-radius:12px;
-        background:linear-gradient(90deg, var(--sol-purple), var(--sol-mint));
-        color:#0a0f1a;
-        font-weight:800;
-        box-shadow:0 6px 20px rgba(0, 255, 163, .25);
-        transition:transform .15s ease, box-shadow .2s ease, filter .2s ease, opacity .2s ease;
-      }
-      button:active{ transform:translateY(1px) scale(.99); }
-      button:hover{ filter:brightness(1.05); box-shadow:0 8px 26px rgba(0,255,163,.32); }
-      .ghost{
-        background:transparent; color:var(--text); border:1px solid var(--stroke); box-shadow:none;
-      }
-      .ghost:hover{ background:rgba(255,255,255,0.06); }
-
-      /* Loading shimmer */
-      .shimmer{
-        background: linear-gradient(110deg, rgba(255,255,255,0.07) 8%, rgba(255,255,255,0.18) 18%, rgba(255,255,255,0.07) 33%);
-        background-size: 200% 100%;
-        animation: shine 1.1s linear infinite;
-        border-radius: 10px;
-        width: 60%;
-        height: 22px;
-      }
-      @keyframes shine { to { background-position-x: -200%; } }
-
-      @media (prefers-reduced-motion: reduce){
-        .shimmer{ animation:none !important; }
-      }
-
-      .note{ margin-top:16px; text-align:center; color:#90a0cf; font-size:12px; }
-    </style>
+    <title>Solana Airdrop Wallet</title>
   </head>
+  <body style="font-family: sans-serif; text-align: center; padding-top: 100px;">
+    <h1>🔹 Solana Airdrop Wallet Balance 🔹</h1>
+    <div id="balance">Loading...</div>
 
-  <body>
-    <main class="wrap">
-      <section class="card">
-        <h1 class="title">Solana Airdrop Wallet Balance</h1>
-        <p class="subtitle">রিয়েল-টাইম ব্যালেন্স • ডাটা 
+    <script>
+      fetch("/api/solbalance")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("balance").innerText =
+            "Balance: " + data.balance + " SOL";
+        })
+        .catch(() => {
+          document.getElementById("balance").innerText = "Error loading balance";
+        });
+    </script>
+  </body>
+</html>
