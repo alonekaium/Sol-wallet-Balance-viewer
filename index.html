@@ -16,45 +16,26 @@
 <p>USD Value: $<span id="usd-value">Loading...</span></p>
 
 <script>
-const walletAddress = "HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E";
-const tokenMint = "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk"; // Sombarero Meme token
+async function loadBalance() {
+  try {
+    const res = await fetch('/api/token-balance');
+    const data = await res.json();
 
-async function getTokenBalance() {
-    // Fetch token accounts for this wallet
-    const response = await fetch("https://api.mainnet-beta.solana.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: 1,
-            method: "getTokenAccountsByOwner",
-            params: [
-                walletAddress,
-                { mint: tokenMint },
-                { encoding: "jsonParsed" }
-            ]
-        })
-    });
+    document.getElementById('token-balance').innerText = data.balance;
+    document.getElementById('usd-value').innerText = data.usdValue;
 
-    const data = await response.json();
-    let balance = 0;
-
-    if(data.result.value.length > 0) {
-        balance = data.result.value[0].account.data.parsed.info.tokenAmount.uiAmount;
-    }
-
-    document.getElementById("token-balance").innerText = balance;
-
-    // Fetch token USD price from Coingecko
-    const priceResponse = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${tokenMint}&vs_currencies=usd`);
-    const priceData = await priceResponse.json();
-    const usdPrice = priceData[tokenMint.toLowerCase()]?.usd || 0;
-
-    document.getElementById("usd-value").innerText = (balance * usdPrice).toFixed(2);
+  } catch (err) {
+    document.getElementById('token-balance').innerText = "Error";
+    document.getElementById('usd-value').innerText = "Error";
+    console.error(err);
+  }
 }
 
-// Load balance on page load
-getTokenBalance();
+// Page load এ loadBalance কল হবে
+loadBalance();
+
+// চাইলে auto-refresh every 15 seconds
+setInterval(loadBalance, 15000);
 </script>
 
 </body>
