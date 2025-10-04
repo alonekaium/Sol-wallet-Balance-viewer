@@ -1,37 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Sombarero Meme Balance</title>
-<style>
-  body { font-family: Arial, sans-serif; padding: 20px; }
-  #balance { font-size: 24px; margin-top: 10px; }
-</style>
-</head>
-<body>
+<html>
+  <head>
+    <title>Sombrero Meme Balance</title>
+    <style>
+      body { font-family: sans-serif; text-align: center; margin-top: 60px; }
+      .balance { font-size: 2rem; margin-top: 20px; }
+    </style>
+  </head>
+  <body>
+    <h2>Sombrero Meme Token Balance</h2>
+    <div id="balance" class="balance">Loading...</div>
 
-<h1>Sombarero Meme Balance</h1>
-<p>Wallet: <span id="wallet">HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E</span></p>
-<p>Token Balance: <span id="token-balance">Loading...</span></p>
+    <script>
+      async function fetchBalance() {
+        // যদি Next.js API route ইউজ করো
+        // const res = await fetch('/api/sombrero-balance');
+        // যদি সরাসরি backend deploy না থাকে, নিচের মতো fetch করো:
+        const res = await fetch('https://api.mainnet-beta.solana.com', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "getTokenAccountsByOwner",
+            params: [
+              "HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E",
+              { mint: "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk" },
+              { encoding: "jsonParsed" }
+            ]
+          })
+        });
+        const data = await res.json();
+        let amount = 0;
+        if (
+          data.result &&
+          data.result.value &&
+          data.result.value.length > 0
+        ) {
+          amount = data.result.value[0].account.data.parsed.info.tokenAmount.uiAmountString;
+        }
+        document.getElementById('balance').innerText = `Balance: ${amount} SOMBRERO`;
+      }
 
-<script>
-async function loadBalance() {
-  try {
-    const res = await fetch('/api/token-balance');
-    const data = await res.json();
-    document.getElementById('token-balance').innerText = data.balance;
-  } catch (err) {
-    document.getElementById('token-balance').innerText = "Error fetching balance";
-    console.error(err);
-  }
-}
-
-// Page load এ loadBalance কল হবে
-loadBalance();
-
-// Auto-refresh every 15 seconds
-setInterval(loadBalance, 15000);
-</script>
-
-</body>
+      fetchBalance();
+    </script>
+  </body>
 </html>
