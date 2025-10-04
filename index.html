@@ -1,48 +1,18 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Sombrero Meme Balance</title>
-    <style>
-      body { font-family: sans-serif; text-align: center; margin-top: 60px; }
-      .balance { font-size: 2rem; margin-top: 20px; }
-    </style>
-  </head>
-  <body>
-    <h2>Sombrero Meme Token Balance</h2>
-    <div id="balance" class="balance">Loading...</div>
+<!doctype html><html lang="en"> <head> <meta charset="utf-8" /> <title>Sombrero Meme Balance</title> <meta name="viewport" content="width=device-width, initial-scale=1" /> <style> body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0f1115;color:#eaeaea} .card{width:min(720px,92vw);background:#161a22;border:1px solid #262b36;border-radius:14px;padding:28px 24px} h1{margin:0 0 18px;font-size:22px} label{display:block;margin:10px 0 6px;color:#b8c0cc} input{width:100%;padding:10px 12px;border:1px solid #303642;border-radius:8px;background:#0f1218;color:#eaeaea} .row{display:grid;grid-template-columns:1fr 1fr;gap:12px} button{margin-top:14px;width:100%;padding:12px;border:0;border-radius:10px;background:#ffd000;color:#202020; font-weight:700;cursor:pointer} .balance{margin-top:18px;font-size:20px} small{color:#97a0ad} </style> </head> <body> <div class="card"> <h1>Sombrero Meme Token Balance</h1>
 
-    <script>
-      async function fetchBalance() {
-        // যদি Next.js API route ইউজ করো
-        // const res = await fetch('/api/sombrero-balance');
-        // যদি সরাসরি backend deploy না থাকে, নিচের মতো fetch করো:
-        const res = await fetch('https://api.mainnet-beta.solana.com', {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: 1,
-            method: "getTokenAccountsByOwner",
-            params: [
-              "HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E",
-              { mint: "354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk" },
-              { encoding: "jsonParsed" }
-            ]
-          })
-        });
-        const data = await res.json();
-        let amount = 0;
-        if (
-          data.result &&
-          data.result.value &&
-          data.result.value.length > 0
-        ) {
-          amount = data.result.value[0].account.data.parsed.info.tokenAmount.uiAmountString;
-        }
-        document.getElementById('balance').innerText = `Balance: ${amount} SOMBRERO`;
-      }
 
-      fetchBalance();
-    </script>
-  </body>
-</html>
+<div class="row">
+  <div>
+    <label>Wallet Address</label>
+    <input id="wallet" value="HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E" />
+  </div>
+  <div>
+    <label>Mint Address (Sombrero)</label>
+    <input id="mint" value="354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk" />
+  </div>
+</div>
+
+<button id="checkBtn">Check Balance</button>
+<div id="out" class="balance">—</div>
+<small id="meta"></small>
+</div> <script> async function check() { const wallet = document.getElementById('wallet').value.trim(); const mint = document.getElementById('mint').value.trim(); const out = document.getElementById('out'); const meta = document.getElementById('meta'); out.textContent = "Loading..."; try { const res = await fetch(`/api/sombrero?wallet=${wallet}&mint=${mint}`); const data = await res.json(); if (data.error) throw new Error(data.error); out.textContent = `Balance: ${data.balance} SOMBRERO`; meta.textContent = `raw: ${data.amount} | decimals: ${data.decimals}`; } catch (e) { out.textContent = "Failed to load balance"; meta.textContent = e.message || e; } } document.getElementById('checkBtn').addEventListener('click', check); // প্রথম লোডেই দেখাতে চাইলে: check(); </script></body> </html>
