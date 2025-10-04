@@ -13,20 +13,15 @@
 <h1>Sombarero Meme Balance</h1>
 <p>Wallet: <span id="wallet">HEW8TmjdtJmAeMWZYG2pZd97FwZybtvJMkFjJmqMz64E</span></p>
 <p>Token Balance: <span id="token-balance">Loading...</span></p>
-<p>USD Value: $<span id="usd-value">Loading...</span></p>
 
 <script>
 async function loadBalance() {
   try {
     const res = await fetch('/api/token-balance');
     const data = await res.json();
-
     document.getElementById('token-balance').innerText = data.balance;
-    document.getElementById('usd-value').innerText = data.usdValue;
-
   } catch (err) {
-    document.getElementById('token-balance').innerText = "Error";
-    document.getElementById('usd-value').innerText = "Error";
+    document.getElementById('token-balance').innerText = "Error fetching balance";
     console.error(err);
   }
 }
@@ -34,7 +29,7 @@ async function loadBalance() {
 // Page load এ loadBalance কল হবে
 loadBalance();
 
-// চাইলে auto-refresh every 15 seconds
+// Auto-refresh every 15 seconds
 setInterval(loadBalance, 15000);
 </script>
 
